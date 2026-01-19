@@ -1,0 +1,68 @@
+{
+    "name": "CuacaKu Indonesia - BMKG Weather App",
+    "short_name": "CuacaKu",
+    "description": "Aplikasi prakiraan cuaca Indonesia dengan data real-time dari BMKG. Informasi cuaca, gempa bumi, gelombang laut, dan peringatan dini bencana.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0a0e1a",
+    "theme_color": "#0a0e1a",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "lang": "id",
+    "categories": ["weather", "utilities", "news"],
+    "icons": [
+        {
+            "src": "icons/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "icons/icon.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "maskable"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "screenshots/weather.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Weather Dashboard"
+        },
+        {
+            "src": "screenshots/earthquake.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Earthquake Monitor"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Lihat Cuaca",
+            "short_name": "Cuaca",
+            "description": "Lihat prakiraan cuaca saat ini",
+            "url": "/?section=weather",
+            "icons": [{ "src": "icons/weather.png", "sizes": "96x96" }]
+        },
+        {
+            "name": "Info Gempa",
+            "short_name": "Gempa",
+            "description": "Lihat informasi gempa terbaru",
+            "url": "/?section=earthquake",
+            "icons": [{ "src": "icons/earthquake.png", "sizes": "96x96" }]
+        },
+        {
+            "name": "Peringatan Dini",
+            "short_name": "Peringatan",
+            "description": "Lihat peringatan dini cuaca",
+            "url": "/?section=alerts",
+            "icons": [{ "src": "icons/alert.png", "sizes": "96x96" }]
+        }
+    ],
+    "related_applications": [],
+    "prefer_related_applications": false
+}

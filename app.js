@@ -99,7 +99,8 @@ async function initApp() {
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
     
-    await Promise.all([
+    // Use Promise.allSettled to ensure all functions complete even if some fail
+    await Promise.allSettled([
         loadWeatherData(),
         loadEarthquakeData(),
         loadMaritimeData(),
@@ -244,14 +245,24 @@ function showToast(message, icon = 'ℹ️', duration = 5000) {
 // Weather Data
 // ========================================
 async function loadWeatherData() {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+    
     try {
-        const response = await fetch(API.weather(currentLocation.code));
+        const response = await fetch(API.weather(currentLocation.code), {
+            signal: controller.signal,
+            mode: 'cors'
+        });
+        clearTimeout(timeoutId);
+        
         if (!response.ok) throw new Error('API Error');
         const data = await response.json();
         weatherData = data;
         renderWeatherData(data);
     } catch (error) {
+        clearTimeout(timeoutId);
         console.error('Weather fetch error:', error);
+        // Always show demo data on error (CORS, timeout, network error, etc.)
         renderDemoWeatherData();
     }
 }
@@ -381,12 +392,16 @@ function generateDemoForecast() {
 // Earthquake Data
 // ========================================
 async function loadEarthquakeData() {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
     try {
         const [autoRes, recentRes, feltRes] = await Promise.all([
-            fetch(API.autoGempa),
-            fetch(API.gempa15),
-            fetch(API.gempaDirasakan)
+            fetch(API.autoGempa, { signal: controller.signal }),
+            fetch(API.gempa15, { signal: controller.signal }),
+            fetch(API.gempaDirasakan, { signal: controller.signal })
         ]);
+        clearTimeout(timeoutId);
         
         earthquakeData = {
             latest: (await autoRes.json()).Infogempa?.gempa,
@@ -396,6 +411,7 @@ async function loadEarthquakeData() {
         
         renderEarthquakeData();
     } catch (error) {
+        clearTimeout(timeoutId);
         console.error('Earthquake fetch error:', error);
         renderDemoEarthquakeData();
     }
@@ -550,8 +566,12 @@ function renderDemoEarthquakeData() {
 }
 
 async function checkEarthquakeUpdates() {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
     try {
-        const response = await fetch(API.autoGempa);
+        const response = await fetch(API.autoGempa, { signal: controller.signal });
+        clearTimeout(timeoutId);
         const data = await response.json();
         const latest = data.Infogempa?.gempa;
         
@@ -559,12 +579,13 @@ async function checkEarthquakeUpdates() {
             lastEarthquakeId = latest.DateTime;
             const magnitude = parseFloat(latest.Magnitude) || 0;
             if (magnitude >= 4.0) {
-                sendNotification(`⚠️ Gempa M${latest.Magnitude}`, `${latest.Wilayah}\n${latest.Tanggal} ${latest.Jam}`, '🌍');
+                sendNotification(`Gempa M${latest.Magnitude}`, `${latest.Wilayah}\n${latest.Tanggal} ${latest.Jam}`, '');
                 document.getElementById('alertsBtn').classList.add('alert-badge');
             }
             loadEarthquakeData();
         }
     } catch (error) {
+        clearTimeout(timeoutId);
         console.error('Earthquake check failed:', error);
     }
 }

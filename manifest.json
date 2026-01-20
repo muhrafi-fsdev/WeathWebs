@@ -1,0 +1,43 @@
+{
+    "name": "Cuaca Nusantara - BMKG Weather App",
+    "short_name": "Cuaca Nusantara",
+    "description": "Aplikasi prakiraan cuaca Indonesia dengan data real-time dari BMKG. Informasi cuaca, gempa bumi, gelombang laut, dan peringatan dini bencana.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0a0e1a",
+    "theme_color": "#0a0e1a",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "lang": "id",
+    "categories": ["weather", "utilities", "news"],
+    "icons": [
+        {
+            "src": "icons/logo.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Lihat Cuaca",
+            "short_name": "Cuaca",
+            "description": "Lihat prakiraan cuaca saat ini",
+            "url": "/?section=weather"
+        },
+        {
+            "name": "Info Gempa",
+            "short_name": "Gempa",
+            "description": "Lihat informasi gempa terbaru",
+            "url": "/?section=earthquake"
+        },
+        {
+            "name": "Peringatan Dini",
+            "short_name": "Peringatan",
+            "description": "Lihat peringatan dini cuaca",
+            "url": "/?section=alerts"
+        }
+    ],
+    "related_applications": [],
+    "prefer_related_applications": false
+}

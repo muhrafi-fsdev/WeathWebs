@@ -245,25 +245,8 @@ function showToast(message, icon = 'ℹ️', duration = 5000) {
 // Weather Data
 // ========================================
 async function loadWeatherData() {
-    // BMKG API has CORS restrictions, try fetch with short timeout
-    // If fails, immediately show demo data
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
-        
-        const response = await fetch(API.weather(currentLocation.code), {
-            signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) throw new Error('API Error');
-        const data = await response.json();
-        weatherData = data;
-        renderWeatherData(data);
-    } catch (error) {
-        console.log('Using demo weather data');
-        renderDemoWeatherData();
-    }
+    // Langsung gunakan demo data (BMKG API has CORS restrictions)
+    renderDemoWeatherData();
 }
 
 function renderWeatherData(data) {
@@ -391,28 +374,8 @@ function generateDemoForecast() {
 // Earthquake Data
 // ========================================
 async function loadEarthquakeData() {
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
-        
-        const [autoRes, recentRes, feltRes] = await Promise.all([
-            fetch(API.autoGempa, { signal: controller.signal }),
-            fetch(API.gempa15, { signal: controller.signal }),
-            fetch(API.gempaDirasakan, { signal: controller.signal })
-        ]);
-        clearTimeout(timeoutId);
-        
-        earthquakeData = {
-            latest: (await autoRes.json()).Infogempa?.gempa,
-            recent: (await recentRes.json()).Infogempa?.gempa || [],
-            felt: (await feltRes.json()).Infogempa?.gempa || []
-        };
-        
-        renderEarthquakeData();
-    } catch (error) {
-        console.log('Using demo earthquake data');
-        renderDemoEarthquakeData();
-    }
+    // Langsung gunakan demo data
+    renderDemoEarthquakeData();
 }
 
 function renderEarthquakeData() {
@@ -564,27 +527,7 @@ function renderDemoEarthquakeData() {
 }
 
 async function checkEarthquakeUpdates() {
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
-        
-        const response = await fetch(API.autoGempa, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        const data = await response.json();
-        const latest = data.Infogempa?.gempa;
-        
-        if (latest && latest.DateTime !== lastEarthquakeId) {
-            lastEarthquakeId = latest.DateTime;
-            const magnitude = parseFloat(latest.Magnitude) || 0;
-            if (magnitude >= 4.0) {
-                sendNotification(`Gempa M${latest.Magnitude}`, `${latest.Wilayah}\n${latest.Tanggal} ${latest.Jam}`, '');
-                document.getElementById('alertsBtn').classList.add('alert-badge');
-            }
-            loadEarthquakeData();
-        }
-    } catch (error) {
-        // Silent fail - will retry on next interval
-    }
+    // Disabled - using demo data only
 }
 
 // ========================================

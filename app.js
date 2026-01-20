@@ -696,3 +696,177 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(e => console.log('SW failed:', e));
     });
 }
+c}">${a.wave}</span>
+                        </div>
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem;">${a.weather}</p>
+                        <div class="maritime-stats">
+                            <div class="maritime-stat"><div class="maritime-stat-value">${a.waveHeight}</div><div class="maritime-stat-label">Tinggi Gelombang</div></div>
+                            <div class="maritime-stat"><div class="maritime-stat-value">${a.windSpeed} kt</div><div class="maritime-stat-label">Kec. Angin</div></div>
+                            <div class="maritime-stat"><div class="maritime-stat-value">${a.windDir}</div><div class="maritime-stat-label">Arah Angin</div></div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+        <div style="margin-top: 2rem; padding: 1.5rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-subtle);">
+            <h4 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" style="color:var(--accent-cyan)"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1z"/></svg>
+                Panduan Klasifikasi Gelombang
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                <div><span class="wave-badge calm">Tenang</span> &lt; 0.5 m</div>
+                <div><span class="wave-badge low">Rendah</span> 0.5 - 1.25 m</div>
+                <div><span class="wave-badge medium">Sedang</span> 1.25 - 2.5 m</div>
+                <div><span class="wave-badge high">Tinggi</span> 2.5 - 4 m</div>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+            Data real-time: <a href="https://maritim.bmkg.go.id" target="_blank" style="color: var(--accent-cyan);">maritim.bmkg.go.id</a>
+        </div>
+    `;
+    
+    setTimeout(initMaritimeMap, 300);
+}
+
+function initMaritimeMap() {
+    const mapElement = document.getElementById('maritime-map');
+    if (!mapElement) return;
+    
+    if (maritimeMap) {
+        maritimeMap.remove();
+        maritimeMap = null;
+    }
+    
+    try {
+        maritimeMap = L.map('maritime-map', {
+            center: [-2.5, 118],
+            zoom: 4,
+            zoomControl: true
+        });
+        
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap, © CARTO',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(maritimeMap);
+        
+        const seaAreas = [
+            { name: 'Selat Sunda', lat: -6.0, lon: 105.5, wave: 'medium' },
+            { name: 'Selat Makassar', lat: -1.5, lon: 118.5, wave: 'low' },
+            { name: 'Laut Jawa', lat: -5.5, lon: 112.0, wave: 'calm' },
+            { name: 'Laut Banda', lat: -5.0, lon: 128.0, wave: 'high' },
+            { name: 'Laut Flores', lat: -7.5, lon: 121.0, wave: 'medium' },
+            { name: 'Laut Sulawesi', lat: 2.0, lon: 123.0, wave: 'low' }
+        ];
+        
+        seaAreas.forEach(a => {
+            const color = a.wave === 'calm' ? '#10b981' : a.wave === 'low' ? '#06b6d4' : a.wave === 'medium' ? '#f59e0b' : '#f43f5e';
+            L.circleMarker([a.lat, a.lon], {
+                radius: 16,
+                fillColor: color,
+                color: color,
+                weight: 2,
+                opacity: 0.7,
+                fillOpacity: 0.4
+            }).bindPopup(`<strong>${a.name}</strong><br>Gelombang: ${a.wave}`).addTo(maritimeMap);
+        });
+        
+        setTimeout(() => maritimeMap.invalidateSize(), 100);
+        
+    } catch (error) {
+        console.error('Maritime map error:', error);
+    }
+}
+
+// ========================================
+// Alerts Data
+// ========================================
+async function loadAlertsData() {
+    renderDemoAlertsData();
+}
+
+function renderDemoAlertsData() {
+    const content = document.getElementById('alertsContent');
+    const alerts = [
+        { type: 'warning', title: 'Peringatan Hujan Lebat', time: '20 Jan 2026 10:00 WIB', content: 'Potensi hujan lebat disertai petir dan angin kencang di wilayah Jakarta dan sekitarnya.', location: 'DKI Jakarta, Jawa Barat bagian utara' },
+        { type: 'danger', title: 'Peringatan Gelombang Tinggi', time: '20 Jan 2026 08:00 WIB', content: 'Gelombang tinggi 2.5-4 meter di Laut Banda dan perairan selatan Jawa.', location: 'Laut Banda, Perairan Selatan Jawa' },
+        { type: 'info', title: 'Info Cuaca Penerbangan', time: '20 Jan 2026 06:00 WIB', content: 'Visibilitas menurun di beberapa bandara akibat kabut pagi.', location: 'Bandara Soekarno-Hatta, Bandara Juanda' },
+        { type: 'warning', title: 'Peringatan Angin Kencang', time: '19 Jan 2026 22:00 WIB', content: 'Potensi angin kencang 40-50 km/jam di wilayah pegunungan.', location: 'Jawa Tengah, DIY bagian selatan' }
+    ];
+    
+    const alertIcons = {
+        danger: '<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>',
+        warning: '<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>',
+        info: '<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>'
+    };
+    
+    content.innerHTML = `
+        <div style="margin-bottom: 2rem;">
+            <button class="notification-prompt" onclick="requestNotificationPermission(); showToast('Notifikasi diaktifkan!');">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" style="vertical-align: middle; margin-right: 8px;"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                Aktifkan Notifikasi Peringatan
+            </button>
+        </div>
+        <div class="alert-list">
+            ${alerts.map(a => `
+                <div class="alert-item ${a.type}">
+                    <div class="alert-header">
+                        <span class="alert-type ${a.type}">${alertIcons[a.type]} ${a.title}</span>
+                        <span class="alert-time">${a.time}</span>
+                    </div>
+                    <div class="alert-content">${a.content}</div>
+                    <div class="alert-location">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" style="vertical-align: middle; margin-right: 4px;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        ${a.location}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        <div style="margin-top: 2rem; padding: 1.5rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-subtle);">
+            <h4 style="margin-bottom: 1rem;">Keterangan Tingkat Peringatan</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; color: var(--text-secondary);">
+                <div><span style="color: var(--accent-rose);">${alertIcons.danger} Bahaya</span><p style="font-size: 0.85rem;">Ancaman serius</p></div>
+                <div><span style="color: var(--accent-amber);">${alertIcons.warning} Waspada</span><p style="font-size: 0.85rem;">Perhatian khusus</p></div>
+                <div><span style="color: var(--accent-blue);">${alertIcons.info} Info</span><p style="font-size: 0.85rem;">Informasi umum</p></div>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+            Data: <a href="https://data.bmkg.go.id/peringatan-dini-cuaca/" target="_blank" style="color: var(--accent-cyan);">BMKG Nowcast</a>
+        </div>
+    `;
+}
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(e => console.log('SW failed:', e));
+    });
+}
+
+// Add CSS for weather SVG icons
+const style = document.createElement('style');
+style.textContent = `
+    .weather-svg {
+        width: 100%;
+        height: 100%;
+    }
+    .weather-icon-large {
+        width: 120px;
+        height: 120px;
+    }
+    .forecast-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto;
+    }
+    .stat-icon svg {
+        width: 32px;
+        height: 32px;
+    }
+    @keyframes pulse-ring {
+        0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); }
+        70% { box-shadow: 0 0 0 20px rgba(244, 63, 94, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
+    }
+`;
+document.head.appendChild(style);

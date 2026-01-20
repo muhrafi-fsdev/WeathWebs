@@ -245,13 +245,14 @@ function showToast(message, icon = 'ℹ️', duration = 5000) {
 // Weather Data
 // ========================================
 async function loadWeatherData() {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
-    
+    // BMKG API has CORS restrictions, try fetch with short timeout
+    // If fails, immediately show demo data
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        
         const response = await fetch(API.weather(currentLocation.code), {
-            signal: controller.signal,
-            mode: 'cors'
+            signal: controller.signal
         });
         clearTimeout(timeoutId);
         
@@ -260,9 +261,7 @@ async function loadWeatherData() {
         weatherData = data;
         renderWeatherData(data);
     } catch (error) {
-        clearTimeout(timeoutId);
-        console.error('Weather fetch error:', error);
-        // Always show demo data on error (CORS, timeout, network error, etc.)
+        console.log('Using demo weather data');
         renderDemoWeatherData();
     }
 }
@@ -392,10 +391,10 @@ function generateDemoForecast() {
 // Earthquake Data
 // ========================================
 async function loadEarthquakeData() {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
-    
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        
         const [autoRes, recentRes, feltRes] = await Promise.all([
             fetch(API.autoGempa, { signal: controller.signal }),
             fetch(API.gempa15, { signal: controller.signal }),
@@ -411,8 +410,7 @@ async function loadEarthquakeData() {
         
         renderEarthquakeData();
     } catch (error) {
-        clearTimeout(timeoutId);
-        console.error('Earthquake fetch error:', error);
+        console.log('Using demo earthquake data');
         renderDemoEarthquakeData();
     }
 }
@@ -566,10 +564,10 @@ function renderDemoEarthquakeData() {
 }
 
 async function checkEarthquakeUpdates() {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
-    
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        
         const response = await fetch(API.autoGempa, { signal: controller.signal });
         clearTimeout(timeoutId);
         const data = await response.json();
@@ -585,8 +583,7 @@ async function checkEarthquakeUpdates() {
             loadEarthquakeData();
         }
     } catch (error) {
-        clearTimeout(timeoutId);
-        console.error('Earthquake check failed:', error);
+        // Silent fail - will retry on next interval
     }
 }
 
